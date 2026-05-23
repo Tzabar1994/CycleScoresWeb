@@ -1,0 +1,77 @@
+{
+    "Event": "South London Grand Prix",
+    "HeaderImage": "SLGP.png",
+    "Title": "Women Elite Sprint - Qualifying",
+    "SubTitle": "Result",
+    "CommuniqueType": 1,
+    "Result": [
+        {
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 34,
+                    "Name": "BELL Lauren",
+                    "Nation": "GBR",
+                    "ResultDetails": "11.409"
+                },
+                {
+                    "Rank" : 2,
+                    "Bib": 35,
+                    "Name": "TANNER Millicent",
+                    "Nation": "GBR",
+                    "ResultDetails": "11.459"
+                },
+                {
+                    "Rank" : 3,
+                    "Bib": 33,
+                    "Name": "MOIR Iona",
+                    "Nation": "GBR",
+                    "ResultDetails" : "11.674"
+                },
+                {
+                    "Rank" : 4,
+                    "Bib": 36,
+                    "Name": "EDMUNDS Rhian",
+                    "Nation": "GBR",
+                    "ResultDetails" : "11.726"
+                },
+                {
+                    "Rank" : 5,
+                    "Bib": 37,
+                    "Name": "PARRIS-SMITH Rhianna",
+                    "Nation": "GBR",
+                    "ResultDetails" : "11.775"
+                },
+                {
+                    "Rank": 6,
+                    "Bib": 31,
+                    "Name": "SAVARD Emy",
+                    "Nation": "CAN",
+                    "ResultDetails" : "12.074"
+                },
+                {
+                    "Rank" : 7,
+                    "Bib": 38,
+                    "Name": "KRAUTH-IBARZ Thalia",
+                    "Nation": "CAN",
+                    "ResultDetails" : "12.351"
+                },
+                {
+                    "Rank": 8,
+                    "Bib": 32,
+                    "Name": "CADMAN Hannah",
+                    "Nation": "GBR",
+                    "ResultDetails" : "12.665"
+                },
+                {
+                    "Rank" : 9,
+                    "Bib": 7,
+                    "Name": "SELVA Francesca",
+                    "Nation": "ITA",
+                    "ResultDetails" : "13.287"
+                }
+            ]
+        }
+    ],
+    "Decision": "Top 8 riders qualify to Quarter Finals."
+}

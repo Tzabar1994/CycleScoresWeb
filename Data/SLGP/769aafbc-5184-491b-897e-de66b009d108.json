@@ -1,0 +1,78 @@
+{
+    "Event": "South London Grand Prix",
+    "HeaderImage": "SLGP.png",
+    "Title": "Women Elite Sprint - Quarter Finals",
+    "SubTitle": "Result",
+    "CommuniqueType": 1,
+    "Result": [
+        {
+            "HeatTitle": "Heat 1",
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 34,
+                    "Name": "BELL Lauren",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 2,
+                    "Bib": 32,
+                    "Name": "CADMAN Hannah",
+                    "Nation": "GBR"
+                }
+            ]
+        },
+        {
+            "HeatTitle": "Heat 2",
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 35,
+                    "Name": "TANNER Millicent",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 2,
+                    "Bib": 38,
+                    "Name": "KRAUTH-IBARZ Thalia",
+                    "Nation": "CAN"
+                }
+            ]
+        },
+        {
+            "HeatTitle": "Heat 3",
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 31,
+                    "Name": "SAVARD Emy",
+                    "Nation": "CAN"
+                },
+                {
+                    "Rank": 2,
+                    "Bib": 33,
+                    "Name": "MOIR Iona",
+                    "Nation": "GBR"
+                }
+            ]
+        },
+        {
+            "HeatTitle": "Heat 4",
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 36,
+                    "Name": "EDMUNDS Rhian",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 2,
+                    "Bib": 37,
+                    "Name": "PARRIS-SMITH Rhianna",
+                    "Nation": "GBR"
+                }
+            ]
+        }
+    ],
+    "Decision": "Winners to Semi Finals  \n  Losers ranked 5th to 8th by 200m qualifying time"
+}

@@ -1,0 +1,102 @@
+{
+    "Event": "South London Grand Prix",
+    "HeaderImage": "SLGP.png",
+    "Title": "Women Elite Sprint - Finals",
+    "SubTitle": "Result",
+    "CommuniqueType": 1,
+    "Result": [
+        {
+            "HeatTitle": "For Bronze",
+            "RiderResults": [
+                {
+                    "Rank": 3,
+                    "Bib": 36,
+                    "Name": "EDMUNDS Rhian",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 4,
+                    "Bib": 31,
+                    "Name": "SAVARD Emy",
+                    "Nation": "CAN"
+                }
+            ]
+        },
+        {
+            "HeatTitle": "For Gold & Silver",
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 35,
+                    "Name": "TANNER Millicent",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 2,
+                    "Bib": 34,
+                    "Name": "BELL Lauren",
+                    "Nation": "GBR"
+                }
+            ]
+        },
+        {
+            "HeatTitle": "General Classification",
+            "RiderResults": [
+                {
+                    "Rank": 1,
+                    "Bib": 35,
+                    "Name": "TANNER Millicent",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 2,
+                    "Bib": 34,
+                    "Name": "BELL Lauren",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 3,
+                    "Bib": 36,
+                    "Name": "EDMUNDS Rhian",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank": 4,
+                    "Bib": 31,
+                    "Name": "SAVARD Emy",
+                    "Nation": "CAN"
+                },
+                {
+                    "Rank" : 5,
+                    "Bib": 33,
+                    "Name": "MOIR Iona",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank" : 6,
+                    "Bib": 37,
+                    "Name": "PARRIS-SMITH Rhianna",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank" : 7,
+                    "Bib": 38,
+                    "Name": "KRAUTH-IBARZ Thalia",
+                    "Nation": "CAN"
+                },
+                {
+                    "Rank": 8,
+                    "Bib": 32,
+                    "Name": "CADMAN Hannah",
+                    "Nation": "GBR"
+                },
+                {
+                    "Rank" : 9,
+                    "Bib": 7,
+                    "Name": "SELVA Francesca",
+                    "Nation": "ITA"
+                }
+            ]
+        }
+    ]
+}

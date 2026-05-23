@@ -1,0 +1,24 @@
+{
+    "Event" : "South London Grand Prix",
+    "HeaderImage" : "SLGP.png",
+    "Title" : "Women Elite Sprint - Qualifying",
+    "SubTitle" : "Start List",
+    "CommuniqueType" : 0,
+    "Start" : [
+        {
+            "HeatTitle" : "Qualifying",
+            "Riders" : [
+                {"Bib": 32, "Name" : "CADMAN Hannah", "Nation" : "GBR"},
+                {"Bib": 38, "Name" : "KRAUTH-IBARZ Thalia", "Nation" : "CAN"},
+                {"Bib": 7, "Name" : "SELVA Francesca", "Nation" : "ITA"},
+                {"Bib": 37, "Name" : "PARRIS-SMITH Rhianna", "Nation" : "GBR"},
+                {"Bib": 33, "Name" : "MOIR Iona", "Nation" : "GBR"},
+                {"Bib": 36, "Name" : "EDMUNDS Rhian", "Nation" : "GBR"},
+                {"Bib": 34, "Name" : "BELL Lauren", "Nation" : "GBR"},
+                {"Bib": 35, "Name" : "TANNER Millicent", "Nation" : "GBR"},
+                {"Bib": 31, "Name" : "SAVARD Emy", "Nation" : "CAN"}
+            ]
+        }
+    ],
+    "Decision" : "Top 8 riders qualify to Quarter Finals."
+}

@@ -1,0 +1,98 @@
+﻿@page
+@using Markdig
+@using Microsoft.AspNetCore.Components
+@model CycleScoresWeb.Pages.Events.CommuniqueViewModel
+@{
+    ViewData["Title"] = "CommuniqueView";
+
+    var pipeline = new MarkdownPipelineBuilder()
+    .UseAdvancedExtensions()
+    .Build();
+}
+<a asp-page="./EventView"
+   asp-route-Id=@Model.EventId
+   class="btn btn-info btn-sm">Back to Event</a>
+<h1 class="display-4 text-center">@Html.DisplayFor(model => model.Communique.Event)</h1>
+<h2>
+    @Html.DisplayFor(Model => Model.Communique.Title)
+    <small class="float-end">
+        @Html.DisplayFor(Model => Model.Communique.SubTitle)
+    </small>
+</h2>
+<hr />
+@if (Model.Communique.HeaderText != null && !Model.Communique.HeaderText.IsWhiteSpace())
+{
+    var h = Markdown.ToHtml(Model.Communique.HeaderText, pipeline);
+    <div class="row">
+        <div class="border text-center">
+            @Html.Raw(h)
+        </div>
+    </div>
+}
+@if (Model.Communique.CommuniqueType == Models.CommuniqueType.TEXT)
+{
+    foreach(var text in Model.Communique?.BodyText)
+    {
+        var h = Markdown.ToHtml(text, pipeline);
+        <div>@Html.Raw(h)</div>
+    }
+}
+else if (Model.Communique.CommuniqueType == Models.CommuniqueType.RESULT)
+{
+    foreach (var result in Model.Communique?.Result)
+    {
+        <div>
+            <h5>@result.HeatTitle</h5>
+            <div class="row">
+                <div class="col-1"><strong>Rank</strong></div>
+                <div class="col-1"><strong>#</strong></div>
+                <div class="col-5"><strong>Name</strong></div>
+                <div class="col-1"><strong>Nation</strong></div>
+                <div class="col-4"><strong></strong></div>
+            </div>
+            @foreach(var rider in result.RiderResults)
+            {
+                <div class="row">
+                    <div class="col-1"><span>@rider.Rank</span></div>
+                    <div class="col-1"><span>@rider.Bib</span></div>
+                    <div class="col-5"><span>@rider.Name</span></div>
+                    <div class="col-1"><span>@rider.Nation</span></div>
+                    <div class="col-4"><span>@rider?.ResultDetails</span></div>
+                </div>
+            }
+        </div>
+        <hr />
+    }
+}
+else if (Model.Communique.CommuniqueType == Models.CommuniqueType.START)
+{
+    foreach (var heat in Model.Communique?.Start)
+    {
+        <div>
+            <h5>@heat.HeatTitle</h5>
+            <div class="row">
+                <div class="col-1"><strong>#</strong></div>
+                <div class="col-5"><strong>Name</strong></div>
+                <div class="col-1"><strong>Nation</strong></div>
+            </div>
+            @foreach (var rider in heat.Riders)
+            {
+                <div class="row">
+                    <div class="col-1"><span>@rider?.Bib</span></div>
+                    <div class="col-5"><span>@rider?.Name</span></div>
+                    <div class="col-1"><span>@rider?.Nation</span></div>
+                </div>
+            }
+        </div>
+        <hr />
+    }
+}
+@if (Model.Communique.Decision != null && !Model.Communique.Decision.IsWhiteSpace())
+{
+    var h = Markdown.ToHtml(Model.Communique.Decision, pipeline);
+    <div class="row mt-3">
+        <div class="border">
+            @Html.Raw(h)
+        </div>
+    </div>
+}

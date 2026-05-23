@@ -1,0 +1,243 @@
+﻿@page
+@model CycleScoresWeb.Events.EventViewModel
+
+@{
+    ViewData["Title"] = "EventView";
+}
+
+<h1 class="display-4"> @Html.DisplayFor(model => model.CycleEvent.Name)</h1>
+<h3><small>@Html.DisplayFor(model => model.DateRange)</small></h3>
+<hr />
+@if (Model.CycleEvent.EventCommuniques != null && Model.CycleEvent.EventCommuniques.Count() > 0)
+{
+    <div>
+        <h6>Event Documents</h6>
+        <ul>
+            @foreach (var eventCommunique in Model.CycleEvent.EventCommuniques)
+            {
+                <li>
+                    <a asp-page="./CommuniqueView"
+                           asp-route-eventId=@Model.CycleEvent.Id
+                           asp-route-communiqueId=@eventCommunique.CommuniqueID
+                           target="_blank"
+                           class="">
+                        @eventCommunique.CommuniqueTitle
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+    <hr />
+}
+<div>
+    <div class="d-grid gap-2 d-md-block p-1">
+        @if (Model.SortBy == "DATE")
+        {
+            <button class="btn btn-info disabled">Sort by Date</button>
+            <a asp-page="" asp-route-sortBy="GROUP" asp-route-id=@Model.CycleEvent.Id class="btn btn-info">Sort by Group</a>
+            <a asp-page="" asp-route-sortBy="EVENT" asp-route-id=@Model.CycleEvent.Id class="btn btn-info">Sort by Event</a>
+        }
+        else if (Model.SortBy == "GROUP")
+        {
+            <a asp-page="" asp-route-sortBy="DATE" asp-route-id=@Model.CycleEvent.Id class="btn btn-info">Sort by Date</a>
+            <button class="btn btn-info disabled">Sort by Group</button>
+            <a asp-page="" asp-route-sortBy="EVENT" asp-route-id=@Model.CycleEvent.Id class="btn btn-info">Sort by Event</a>
+        }
+        else if (Model.SortBy == "EVENT")
+        {
+            <a asp-page="" asp-route-sortBy="DATE" asp-route-id=@Model.CycleEvent.Id class="btn btn-info">Sort by Date</a>
+            <a asp-page="" asp-route-sortBy="GROUP" asp-route-id=@Model.CycleEvent.Id
+                   class="btn btn-info">
+                Sort by Group
+            </a>
+            <button class="btn btn-info disabled">Sort by Event</button>
+        }
+    </div>
+    <hr />
+    <div class="container">
+        @if (Model.CycleEvent.EventRaces != null)
+        {
+            <div class="accordion" id="EventAccordian">
+                @if (Model.SortBy == "DATE")
+                {
+                    @foreach (var raceDay in Model.CycleEvent.EventRaces.GroupBy(race => race.RaceDate))
+                    {
+                        var accordianID = $"collapse-{raceDay.First().RaceDate}";
+                        <div class="accordian-item">
+                            <h2 class="accordian-header" style="border: solid 1px;">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@accordianID" aria-expanded="false" aria-controls="@accordianID">
+                                    @Html.DisplayFor(modelItem => raceDay.First().RaceDate)
+                                </button>
+                            </h2>
+                            <div id="@accordianID" class="accordian-collapse collapse" data-bs-parent="EventAccordian" style="padding-bottom: 5px;">
+                                <ul class="list-group">
+                                    @foreach (var race in raceDay.OrderBy(r => r.SortOrder))
+                                    {
+                                        <li class="list-group-item">
+                                            <span class="badge bg-primary rounded-pill">
+                                                @Html.DisplayFor(modelItem => race.SortOrder)
+                                            </span>
+                                            <span class="fw-bold">
+                                                @Html.DisplayFor(modelItem => race.Group)
+                                            </span>
+                                            <span>
+                                                @Html.DisplayFor(modelItem => race.Name)
+                                                @if (race.Phase != null && !race.Phase.IsWhiteSpace())
+                                                {
+                                                    <text> - </text>
+                                                    @Html.DisplayFor(modelItem => race.Phase)
+                                                }
+
+                                            
+                                            </span>
+                                            <div class="float-end">
+                                                @if (race.StartCommuniqueID != null)
+                                                {
+                                                    <a asp-page="./CommuniqueView"
+                                                       asp-route-eventId=@Model.CycleEvent.Id
+                                                       asp-route-communiqueId=@race.StartCommuniqueID class="btn btn-info btn-sm">Start List</a>
+                                                }
+                                                @if (race.ResultCommuniqueID != null)
+                                                {
+                                                    <a asp-page="./CommuniqueView"
+                                                       asp-route-eventId=@Model.CycleEvent.Id
+                                                       asp-route-communiqueId=@race.ResultCommuniqueID class="btn btn-info btn-sm">Result</a>
+                                                }
+                                                @* <a href="" class="btn btn-primary btn-sm">Other</a> *@
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                    
+                        </div>
+                
+                    }
+                }
+                else if (Model.SortBy == "GROUP")
+                {
+                    foreach (var raceGroup in Model.CycleEvent.EventRaces.OrderBy(z => z.Group).GroupBy(race => race.Group))
+                    {
+                        var groupName = raceGroup.First().Group;
+                        var groupNameStripped = String.Concat(groupName.Where(c => !Char.IsWhiteSpace(c)));
+                        var accordianID = $"collapse-{groupNameStripped}";
+                        <div class="accordian-item">
+                            <h2 class="accordian-header" style="border: solid 1px;">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@accordianID" aria-expanded="false" aria-controls="@accordianID">
+                                    @groupName
+                                </button>
+                            </h2>
+                            <div id="@accordianID" class="accordian-collapse collapse" data-bs-parent="EventAccordian" style="padding-bottom: 5px;">
+                                <ul class="list-group">
+                                    @foreach (var race in raceGroup.OrderBy(r => r.RaceDate).ThenBy(r => r.SortOrder))
+                                    {
+                                        <li class="list-group-item">
+                                            <span class="badge bg-primary rounded-pill">
+                                                @Html.DisplayFor(modelItem => race.SortOrder)
+                                            </span>
+                                            <span class="fw-bold">
+                                                @Html.DisplayFor(modelItem => race.Group)
+                                            </span>
+                                            <span>
+                                                @Html.DisplayFor(modelItem => race.Name)
+                                                @if (race.Phase != null && !race.Phase.IsWhiteSpace())
+                                                {
+                                                    <text> - </text>
+                                                    @Html.DisplayFor(modelItem => race.Phase)
+                                                }
+                                            </span>
+                                            <div class="float-end">
+                                                @if (race.StartCommuniqueID != null)
+                                                {
+                                                    <a asp-page="./CommuniqueView"
+                                                       asp-route-eventId=@Model.CycleEvent.Id
+                                                       asp-route-communiqueId=@race.StartCommuniqueID class="btn btn-info btn-sm">Start List</a>
+                                                }
+                                                @if (race.ResultCommuniqueID != null)
+                                                {
+                                                    <a asp-page="./CommuniqueView"
+                                                       asp-route-eventId=@Model.CycleEvent.Id
+                                                       asp-route-communiqueId=@race.ResultCommuniqueID class="btn btn-info btn-sm">Result</a>
+                                                }
+                                                @* <a href="" class="btn btn-primary btn-sm">Other</a> *@
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                    
+                        </div>
+                    }
+                }
+                else if (Model.SortBy == "EVENT")
+                {
+                    foreach (var raceGroup in Model.CycleEvent.EventRaces.OrderBy(z => z.Group).GroupBy(race => race.Name))
+                    {
+                        var eventName = raceGroup.First().Name;
+                        var eventNameStripped = String.Concat(eventName.Where(c => !Char.IsWhiteSpace(c)));
+                        var accordianID = $"collapse-{eventNameStripped}";
+                        <div class="accordian-item">
+                            <h2 class="accordian-header" style="border: solid 1px;">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@accordianID" aria-expanded="false" aria-controls="@accordianID">
+                                    @eventName
+                                </button>
+                            </h2>
+                            <div id="@accordianID" class="accordian-collapse collapse" data-bs-parent="EventAccordian" style="padding-bottom: 5px;">
+                                <ul class="list-group">
+                                    @foreach (var race in raceGroup.OrderBy(r => r.RaceDate).ThenBy(r => r.SortOrder))
+                                    {
+                                        <li class="list-group-item">
+                                            <span class="badge bg-primary rounded-pill">
+                                                @Html.DisplayFor(modelItem => race.SortOrder)
+                                            </span>
+                                            <span class="fw-bold">
+                                                @Html.DisplayFor(modelItem => race.Group)
+                                            </span>
+                                            <span>
+                                                @Html.DisplayFor(modelItem => race.Name)
+                                                @if (race.Phase != null && !race.Phase.IsWhiteSpace())
+                                                {
+                                                    <text> - </text>
+                                                    @Html.DisplayFor(modelItem => race.Phase)
+                                                }
+                                            </span>
+                                            <div class="float-end">
+                                                @if (race.StartCommuniqueID != null)
+                                                {
+                                                    <a asp-page="./CommuniqueView"
+                                                       asp-route-eventId=@Model.CycleEvent.Id
+                                                       asp-route-communiqueId=@race.StartCommuniqueID class="btn btn-info btn-sm">Start List</a>
+                                                }
+                                                @if (race.ResultCommuniqueID != null)
+                                                {
+                                                    <a asp-page="./CommuniqueView"
+                                                       asp-route-eventId=@Model.CycleEvent.Id
+                                                       asp-route-communiqueId=@race.ResultCommuniqueID class="btn btn-info btn-sm">Result</a>
+                                                }
+                                                @* <a href="" class="btn btn-primary btn-sm">Other</a> *@
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                    
+                        </div>
+                    }
+                }
+                
+            </div>
+
+            
+        
+        }
+        else
+        {
+            <span>No Races</span>
+        }
+    </div>
+
+    
+</div>
+<div>
+    <a asp-page="/Index">Back</a>
+</div>

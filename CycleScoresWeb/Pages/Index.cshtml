@@ -1,0 +1,49 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h4>Please choose an event to view more information!</h4>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CycleEvent[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CycleEvent[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CycleEvent[0].EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CycleEvent[0].Location)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.CycleEvent.OrderByDescending(z => z.StartDate))
+        {
+            <tr>
+                <td>
+                    <a asp-page="./Events/EventView" asp-route-id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
