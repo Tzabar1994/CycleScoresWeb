@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.Web.CodeGeneration.Utils;
-
-namespace CycleScoresWeb.Models
+﻿namespace CycleScoresWeb.Models
 {
     public class Race
     {
