@@ -2,7 +2,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using CycleScoresWeb.Models;
-using NuGet.ProjectModel;
 using System.Text;
 using System.Text.Json;
 
@@ -44,7 +43,7 @@ namespace CycleScoresWeb.Services
                 var c = JsonSerializer.Deserialize<Communique>(blobContents, _options);
                 if (c != null)
                     return c;
-                throw new FileFormatException("Json could not be deserialised");
+                throw new InvalidDataException("Json could not be deserialised");
             }
             catch
             {
