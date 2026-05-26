@@ -27,6 +27,8 @@ else
 builder.Services.AddDbContext<CycleScoresWebContext>(options =>
     options.UseSqlServer(connection));
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddSingleton<ICommuniqueService, CommuniqueService>();
 builder.Services.AddSingleton<IPDFGeneratorService, PDFGeneratorService>();
 

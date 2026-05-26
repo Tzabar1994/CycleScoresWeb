@@ -7,7 +7,9 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Markdown;
+using System.Collections.Concurrent;
 using System.Diagnostics.Tracing;
+using System.Net.Http;
 using System.Net.Mail;
 using System;
 using Microsoft.AspNetCore.OutputCaching;
@@ -24,14 +26,190 @@ namespace CycleScoresWeb.Services
     {
         private BlobServiceClient _blobServiceClient;
         private BlobContainerClient _blobContainerClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ConcurrentDictionary<string, byte[]?> _flagCache = new(StringComparer.OrdinalIgnoreCase);
 
-        public PDFGeneratorService()
+        // Maps three-letter nation codes to ISO 3166-1 alpha-2 (lowercase), as used by flagcdn.com.
+        // Keyed by BOTH IOC and ISO 3166-1 alpha-3 codes: where they coincide there is a single
+        // entry; where they differ, both are present (e.g. DEN and DNK both map to "dk"). The rare
+        // IOC/ISO3 collisions (e.g. BRN = Bahrain in IOC but Brunei in ISO3) resolve to IOC.
+        private static readonly Dictionary<string, string> CodeToIso2 = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "AFG", "af" },
+            { "ALB", "al" },
+            { "ALG", "dz" }, { "DZA", "dz" },
+            { "AND", "ad" },
+            { "ANG", "ao" }, { "AGO", "ao" },
+            { "ANT", "ag" }, { "ATG", "ag" },
+            { "ARG", "ar" },
+            { "ARM", "am" },
+            { "AUS", "au" },
+            { "AUT", "at" },
+            { "AZE", "az" },
+            { "BAH", "bs" }, { "BHS", "bs" },
+            { "BRN", "bh" }, { "BHR", "bh" },
+            { "BAN", "bd" }, { "BGD", "bd" },
+            { "BAR", "bb" }, { "BRB", "bb" },
+            { "BLR", "by" },
+            { "BEL", "be" },
+            { "BIZ", "bz" }, { "BLZ", "bz" },
+            { "BEN", "bj" },
+            { "BER", "bm" }, { "BMU", "bm" },
+            { "BOL", "bo" },
+            { "BIH", "ba" },
+            { "BOT", "bw" }, { "BWA", "bw" },
+            { "BRA", "br" },
+            { "BRU", "bn" },
+            { "BUL", "bg" }, { "BGR", "bg" },
+            { "BUR", "bf" }, { "BFA", "bf" },
+            { "CAM", "kh" }, { "KHM", "kh" },
+            { "CAN", "ca" },
+            { "CHI", "cl" }, { "CHL", "cl" },
+            { "CHN", "cn" },
+            { "COL", "co" },
+            { "CRC", "cr" }, { "CRI", "cr" },
+            { "CRO", "hr" }, { "HRV", "hr" },
+            { "CUB", "cu" },
+            { "CYP", "cy" },
+            { "CZE", "cz" },
+            { "DEN", "dk" }, { "DNK", "dk" },
+            { "ECU", "ec" },
+            { "EGY", "eg" },
+            { "ESA", "sv" }, { "SLV", "sv" },
+            { "ERI", "er" },
+            { "ESP", "es" },
+            { "EST", "ee" },
+            { "ETH", "et" },
+            { "FIJ", "fj" }, { "FJI", "fj" },
+            { "FIN", "fi" },
+            { "FRA", "fr" },
+            { "GEO", "ge" },
+            { "GER", "de" }, { "DEU", "de" },
+            { "GBR", "gb" },
+            { "GRE", "gr" }, { "GRC", "gr" },
+            { "GRN", "gd" }, { "GRD", "gd" },
+            { "GUA", "gt" }, { "GTM", "gt" },
+            { "GUY", "gy" },
+            { "HAI", "ht" }, { "HTI", "ht" },
+            { "HON", "hn" }, { "HND", "hn" },
+            { "HKG", "hk" },
+            { "HUN", "hu" },
+            { "ISL", "is" },
+            { "IND", "in" },
+            { "INA", "id" }, { "IDN", "id" },
+            { "IRI", "ir" }, { "IRN", "ir" },
+            { "IRQ", "iq" },
+            { "IRL", "ie" },
+            { "ISR", "il" },
+            { "ITA", "it" },
+            { "JPN", "jp" },
+            { "KAZ", "kz" },
+            { "KEN", "ke" },
+            { "KOR", "kr" },
+            { "KSA", "sa" }, { "SAU", "sa" },
+            { "KUW", "kw" }, { "KWT", "kw" },
+            { "LAT", "lv" }, { "LVA", "lv" },
+            { "LIB", "lb" }, { "LBN", "lb" },
+            { "LBA", "ly" }, { "LBY", "ly" },
+            { "LIE", "li" },
+            { "LTU", "lt" },
+            { "LUX", "lu" },
+            { "MAD", "mg" }, { "MDG", "mg" },
+            { "MAS", "my" }, { "MYS", "my" },
+            { "MLT", "mt" },
+            { "MRI", "mu" }, { "MUS", "mu" },
+            { "MEX", "mx" },
+            { "MDA", "md" },
+            { "MON", "mc" }, { "MCO", "mc" },
+            { "MGL", "mn" }, { "MNG", "mn" },
+            { "MNE", "me" },
+            { "MAR", "ma" },
+            { "MOZ", "mz" },
+            { "MYA", "mm" }, { "MMR", "mm" },
+            { "NED", "nl" }, { "NLD", "nl" },
+            { "NEP", "np" }, { "NPL", "np" },
+            { "NZL", "nz" },
+            { "NCA", "ni" }, { "NIC", "ni" },
+            { "NIG", "ne" }, { "NER", "ne" },
+            { "NGR", "ng" }, { "NGA", "ng" },
+            { "MKD", "mk" },
+            { "NOR", "no" },
+            { "OMA", "om" }, { "OMN", "om" },
+            { "PAK", "pk" },
+            { "PAR", "py" }, { "PRY", "py" },
+            { "PER", "pe" },
+            { "PHI", "ph" }, { "PHL", "ph" },
+            { "POL", "pl" },
+            { "POR", "pt" }, { "PRT", "pt" },
+            { "PUR", "pr" }, { "PRI", "pr" },
+            { "QAT", "qa" },
+            { "ROU", "ro" }, { "ROM", "ro" },
+            { "RUS", "ru" },
+            { "RWA", "rw" },
+            { "SMR", "sm" },
+            { "SEN", "sn" },
+            { "SRB", "rs" },
+            { "SEY", "sc" }, { "SYC", "sc" },
+            { "SIN", "sg" }, { "SGP", "sg" },
+            { "SVK", "sk" },
+            { "SLO", "si" }, { "SVN", "si" },
+            { "RSA", "za" }, { "ZAF", "za" },
+            { "SRI", "lk" }, { "LKA", "lk" },
+            { "SUD", "sd" }, { "SDN", "sd" },
+            { "SUI", "ch" }, { "CHE", "ch" },
+            { "SWE", "se" },
+            { "TAN", "tz" }, { "TZA", "tz" },
+            { "THA", "th" },
+            { "TOG", "tg" }, { "TGO", "tg" },
+            { "TGA", "to" }, { "TON", "to" },
+            { "TRI", "tt" }, { "TTO", "tt" },
+            { "TUN", "tn" },
+            { "TUR", "tr" },
+            { "UAE", "ae" }, { "ARE", "ae" },
+            { "UKR", "ua" },
+            { "URU", "uy" }, { "URY", "uy" },
+            { "USA", "us" },
+            { "UZB", "uz" },
+            { "VEN", "ve" },
+            { "VIE", "vn" }, { "VNM", "vn" },
+            { "ZAM", "zm" }, { "ZMB", "zm" },
+            { "ZIM", "zw" }, { "ZWE", "zw" },
+        };
+
+        public PDFGeneratorService(IHttpClientFactory httpClientFactory)
         {
             _blobServiceClient = new BlobServiceClient(
                 new Uri("https://cyclescoresweb.blob.core.windows.net"),
                 new DefaultAzureCredential());
 
             _blobContainerClient = _blobServiceClient.GetBlobContainerClient("header-images");
+            _httpClientFactory = httpClientFactory;
+        }
+
+        private byte[]? GetFlag(string? nation)
+        {
+            if (string.IsNullOrWhiteSpace(nation))
+            {
+                return null;
+            }
+
+            return _flagCache.GetOrAdd(nation, code =>
+            {
+                if (!CodeToIso2.TryGetValue(code, out var iso2))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    var client = _httpClientFactory.CreateClient();
+                    return client.GetByteArrayAsync($"https://flagcdn.com/w80/{iso2}.png").GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    return null;
+                }
+            });
         }
 
         private async Task<byte[]> TryGetHeaderImage(string filename)
@@ -153,6 +331,7 @@ namespace CycleScoresWeb.Services
                                                 row.ConstantItem(40).Text("#").Bold();
                                                 row.ConstantItem(375).Text("Rider").Bold();
                                                 row.ConstantItem(35).Text("NAT").Bold();
+                                                row.ConstantItem(28).Text("").Bold();
                                             });
 
                                         foreach (var r in s.Riders)
@@ -164,9 +343,9 @@ namespace CycleScoresWeb.Services
                                                 row.ConstantItem(40).Text($"{r?.Bib.ToString() ?? ""}");
                                                 row.ConstantItem(375).Text(r.Name);
                                                 row.ConstantItem(35).Text(r.Nation ?? "");
-                                                // ToDo -> Can we have nation flags?
-                                                //row.ConstantItem(30).Image(Placeholders.Image(1, 1));
-
+                                                var flag = GetFlag(r.Nation);
+                                                var flagCell = row.ConstantItem(28);
+                                                if (flag != null) flagCell.Height(13).Image(flag).FitUnproportionally();
                                             });
                                         }
                                         y.Item().PaddingBottom(0.5f, Unit.Centimetre);
@@ -201,8 +380,9 @@ namespace CycleScoresWeb.Services
                                                 {
                                                     row.ConstantItem(50).Text("Rank").Bold();
                                                     row.ConstantItem(50).Text("#").Bold();
-                                                    row.ConstantItem(300).Text("Rider").Bold();
+                                                    row.ConstantItem(276).Text("Rider").Bold();
                                                     row.ConstantItem(35).Text("NAT").Bold();
+                                                    row.ConstantItem(28).Text("").Bold();
                                                     row.ConstantItem(100).Text(r.ResultTitle == null ? "" : r.ResultTitle).Bold().AlignEnd();
                                                 });
 
@@ -218,10 +398,12 @@ namespace CycleScoresWeb.Services
                                                 {
                                                     row.ConstantItem(50).Text($"{result.Rank}");
                                                     row.ConstantItem(50).Text($"{result.Bib}");
-                                                    row.ConstantItem(300).Text(result.Name);
+                                                    row.ConstantItem(276).Text(result.Name);
                                                     row.ConstantItem(35).Text(result.Nation == null ? "" : result.Nation);
+                                                    var flag = GetFlag(result.Nation);
+                                                    var flagCell = row.ConstantItem(28);
+                                                    if (flag != null) flagCell.Height(13).Image(flag).FitUnproportionally();
                                                     row.ConstantItem(100).Text(result.ResultDetails == null ? "" : result.ResultDetails).Bold().AlignEnd();
-
                                                 });
                                         }
                                     });
