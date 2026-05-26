@@ -3,6 +3,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using CycleScoresWeb.Models;
 using NuGet.ProjectModel;
+using System.Text;
 using System.Text.Json;
 
 namespace CycleScoresWeb.Services
@@ -27,7 +28,8 @@ namespace CycleScoresWeb.Services
             _blobContainerClient = _blobServiceClient.GetBlobContainerClient("communiques");
             _options = new JsonSerializerOptions
             {
-                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
+                Converters = { new ForgivingStringConverter() }
             };
 
         }
@@ -47,6 +49,25 @@ namespace CycleScoresWeb.Services
             catch
             {
                 throw new FileNotFoundException($"Communique with id {communiqueId} could not be found;");
+            }
+        }
+
+        private class ForgivingStringConverter : System.Text.Json.Serialization.JsonConverter<string>
+        {
+            public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return reader.TokenType switch
+                {
+                    JsonTokenType.False => "false",
+                    JsonTokenType.True => "true",
+                    JsonTokenType.Number => reader.GetDouble().ToString(),
+                    _ => reader.GetString()
+                };
+            }
+
+            public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
+            {
+                writer.WriteStringValue(value);
             }
         }
     }

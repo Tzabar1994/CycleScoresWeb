@@ -9,6 +9,7 @@ namespace CycleScoresWeb.Pages.Events
     public class CommuniqueViewModel : PageModel
     {
         private ICommuniqueService _service;
+        private IPDFGeneratorService _pdfService;
 
         public CommuniqueViewModel(ICommuniqueService service)
         { 
@@ -17,12 +18,14 @@ namespace CycleScoresWeb.Pages.Events
 
         public Communique Communique { get; set; }
         public int EventId { get; set;  }
+        public Guid CommuniqueId { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid communiqueId, int eventId)
         {
             try
             {
                 EventId = eventId;
+                CommuniqueId = communiqueId;
                 Communique = await _service.FetchCommunique(communiqueId);
                 //for (var text in Communique?.BodyText)
                 //{
@@ -34,10 +37,6 @@ namespace CycleScoresWeb.Pages.Events
             {
                 return NotFound();
             }
-
-
-
         }
-
     }
 }

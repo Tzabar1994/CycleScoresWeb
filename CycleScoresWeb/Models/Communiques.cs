@@ -50,7 +50,7 @@ namespace CycleScoresWeb.Models
     [NotMapped]
     public record RiderResult : Rider
     {
-        public int Rank { get; set; }
+        public required string Rank { get; set; }
         public string? ResultDetails { get; set; }
     }
 

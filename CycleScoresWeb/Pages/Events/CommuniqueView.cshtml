@@ -48,7 +48,14 @@ else if (Model.Communique.CommuniqueType == Models.CommuniqueType.RESULT)
                 <div class="col-1"><strong>#</strong></div>
                 <div class="col-5"><strong>Name</strong></div>
                 <div class="col-1"><strong>Nation</strong></div>
-                <div class="col-4"><strong></strong></div>
+                @if (result.RiderResults.Any(r => (r.ResultDetails != null && !r.ResultDetails.IsWhiteSpace())))
+                {
+                    <div class="col-4"><strong>Result</strong></div>
+                }
+                else
+                {
+                    <div class="col-4"><strong></strong></div>
+                }
             </div>
             @foreach(var rider in result.RiderResults)
             {
@@ -89,10 +96,17 @@ else if (Model.Communique.CommuniqueType == Models.CommuniqueType.START)
 }
 @if (Model.Communique.Decision != null && !Model.Communique.Decision.IsWhiteSpace())
 {
-    var h = Markdown.ToHtml(Model.Communique.Decision, pipeline);
+    var temp = Model.Communique.Decision.Replace("\\\\n", "  \n");
+    var h = Markdown.ToHtml(temp, pipeline);
     <div class="row mt-3">
         <div class="border">
             @Html.Raw(h)
         </div>
     </div>
 }
+<hr />
+<div class="row">
+    <a asp-page="./PDFView"
+       asp-route-CommuniqueId=@Model.CommuniqueId
+       class="btn btn-info btn-sm">Download PDF</a>
+</div>

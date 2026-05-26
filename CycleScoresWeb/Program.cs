@@ -2,7 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using CycleScoresWeb.Data;
 using CycleScoresWeb.Services;
+using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -25,6 +28,7 @@ builder.Services.AddDbContext<CycleScoresWebContext>(options =>
     options.UseSqlServer(connection));
 
 builder.Services.AddSingleton<ICommuniqueService, CommuniqueService>();
+builder.Services.AddSingleton<IPDFGeneratorService, PDFGeneratorService>();
 
 var app = builder.Build();
 
