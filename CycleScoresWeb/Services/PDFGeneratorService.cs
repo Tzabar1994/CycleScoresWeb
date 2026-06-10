@@ -288,7 +288,7 @@ namespace CycleScoresWeb.Services
                                     count--;
 
                                     x.Item()
-                                    //.PreventPageBreak()
+                                    .PreventPageBreak()
                                     .PaddingTop(0.2f, Unit.Centimetre)
                                     //.Border(2, Colors.Blue.Lighten4)
                                     .Padding(0.2f, Unit.Centimetre)

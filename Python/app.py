@@ -194,8 +194,8 @@ for finish_file in finish_files:
     communique_file_name = str(uuid.uuid4()) + '.json'
     with open('output\\' + communique_file_name, 'w') as f:
         f.write(file_contents)
-    # logging.info("Uploading %s: " % communique_file_name)
-    # upload_blob_data(blob_service_client, communique_file_name, file_contents)
-    # success = update_race_with_communique_id(race_id, "FINISH", communique_file_name)
-    # if (success):
-    #     rename("finish\\" + finish_file, "processed\\finish\\" + finish_file)
+    logging.info("Uploading %s: " % communique_file_name)
+    upload_blob_data(blob_service_client, communique_file_name, file_contents)
+    success = update_race_with_communique_id(race_id, "FINISH", communique_file_name)
+    if (success):
+        rename("finish\\" + finish_file, "processed\\finish\\" + finish_file)

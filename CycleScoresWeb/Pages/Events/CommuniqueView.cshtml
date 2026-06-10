@@ -34,6 +34,7 @@
     foreach(var text in Model.Communique?.BodyText)
     {
         var h = Markdown.ToHtml(text, pipeline);
+        h = h.Replace("<table>", "<table class=\"table table-striped\">");
         <div>@Html.Raw(h)</div>
     }
 }

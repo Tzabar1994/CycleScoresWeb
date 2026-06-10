@@ -54,7 +54,7 @@ namespace CycleScoresWeb.Events
             if (cycleevent is not null)
             {
                 CycleEvent = cycleevent;
-                DateRange = cycleevent.StartDate.ToString() + " - " + cycleevent.EndDate.ToString();
+                DateRange = GenerateDateString(cycleevent.StartDate, cycleevent.EndDate);
                 SortBy = sortBy;
 
                 return Page();
@@ -62,5 +62,19 @@ namespace CycleScoresWeb.Events
 
             return NotFound();
         }
+
+        private static string GenerateDateString(DateOnly startDate, DateOnly endDate)
+        {
+            if (startDate == endDate)
+            {
+                return startDate.ToString("d MMM yyyy");
+            }
+            else
+            {
+                return startDate.ToString("d MMM yyyy") + " to " + endDate.ToString("d MMM yyyy");
+            }
+        }
     }
+
+    
 }

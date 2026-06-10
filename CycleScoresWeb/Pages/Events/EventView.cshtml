@@ -187,7 +187,7 @@
                 }
                 else if (Model.SortBy == "EVENT")
                 {
-                    foreach (var raceGroup in Model.CycleEvent.EventRaces.OrderBy(z => z.Group).GroupBy(race => race.Name))
+                    foreach (var raceGroup in Model.CycleEvent.EventRaces.GroupBy(race => race.Name))
                     {
                         var eventName = raceGroup.First().Name;
                         var eventNameStripped = String.Concat(eventName.Where(c => !Char.IsWhiteSpace(c)));
@@ -200,7 +200,7 @@
                             </h2>
                             <div id="@accordianID" class="accordian-collapse collapse" data-bs-parent="EventAccordian" style="padding-bottom: 5px;">
                                 <ul class="list-group">
-                                    @foreach (var race in raceGroup.OrderBy(r => r.RaceDate).ThenBy(r => r.SortOrder))
+                                    @foreach (var race in raceGroup.OrderBy(r => r.RaceDate).ThenBy(r => r.SortOrder).ThenBy(r => r.Group))
                                     {
                                         <li class="list-group-item">
                                             <span class="badge bg-primary rounded-pill">
