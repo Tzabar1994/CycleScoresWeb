@@ -9,7 +9,7 @@
         public required DateOnly RaceDate { get; set; }
         public required int SortOrder { get; set; }
         public Guid? StartCommuniqueID { get; set;  }
-
         public Guid? ResultCommuniqueID { get; set; }
+        public List<CommuniqueSet>? AdditionalCommuniques { get; set; }
     }
 }

@@ -45,7 +45,11 @@ namespace CycleScoresWeb.Events
             }
             sortBy = sortBy ?? "DATE";
 
-            var cycleevent = await _context.Events.Include(x => x.EventRaces).Include(x => x.EventCommuniques).FirstOrDefaultAsync(m => m.Id == id);
+            var cycleevent = await _context.Events
+                .Include(x => x.EventRaces).ThenInclude(race => race.AdditionalCommuniques)
+                .Include(x => x.EventCommuniques)
+                //.Include(x => x.EventRaces)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (cycleevent is not null)
             {
