@@ -55,9 +55,17 @@ namespace CycleScoresWeb.Services
         {
             byte[]? image = null;
 
-            if (c.HeaderImage != null)
+            if (c.HeaderImage != null && !c.HeaderImage.IsWhiteSpace())
             {
-                image = TryGetHeaderImage(c.HeaderImage).Result;
+                try
+                {
+                    image = TryGetHeaderImage(c.HeaderImage).Result;
+                }
+                catch
+                {
+                    image = null;
+                }
+                
             }
 
             var doc = Document.Create(container =>
@@ -69,12 +77,12 @@ namespace CycleScoresWeb.Services
                     //page.MarginTop(0.5f, Unit.Centimetre);
                     //page.MarginBottom(0.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(13));
+                    page.DefaultTextStyle(x => x.FontSize(12));
 
                     page.Header()
                     .Column(col =>
                     {
-                        if (c.CommuniqueNumber != null)
+                        if (c.CommuniqueNumber != null && !c.CommuniqueNumber.IsWhiteSpace())
                         {
                             col.Item().Text($"Communiqué {c.CommuniqueNumber}").Italic().AlignEnd();
                         }
@@ -82,6 +90,18 @@ namespace CycleScoresWeb.Services
                         if (image != null)
                         {
                             col.Item().Image(image).FitWidth();
+                        }
+                        else
+                        {
+                            col.Item().Background(Colors.Blue.Lighten5)
+                            .PaddingTop(0.25f, Unit.Centimetre)
+                            .PaddingBottom(0.25f, Unit.Centimetre)
+                            .Text(c.Event)
+                            .Bold()
+                            .FontSize(22)
+                            .Underline().DecorationSolid()
+                            .FontColor(Colors.Black)
+                            .AlignCenter();
                         }
 
                         //col.Item().Image("C:\\Users\\danie\\source\\repos\\CommuniqueGenerator\\CommuniqueGenerator\\Images\\header.png").FitWidth();
@@ -110,7 +130,7 @@ namespace CycleScoresWeb.Services
                             .LineHorizontal(2)
                             .LineColor(Colors.Blue.Darken4);
 
-                        if (c.HeaderText != null)
+                        if (c.HeaderText != null && !c.HeaderText.IsWhiteSpace())
                         {
                             col.Item()
                             .PaddingTop(5)
@@ -183,10 +203,10 @@ namespace CycleScoresWeb.Services
                                 foreach (var r in c.Result)
                                 {
                                     x.Item()
-                                    .PreventPageBreak()
+                                    //.PreventPageBreak()
                                     .Column(y =>
                                     {
-                                        if (r.HeatTitle != null)
+                                        if (r.HeatTitle != null && !r.HeatTitle.IsWhiteSpace())
                                         {
                                             y.Item()
                                                 .Background(Colors.Blue.Lighten5)
@@ -201,8 +221,8 @@ namespace CycleScoresWeb.Services
                                                 {
                                                     row.ConstantItem(50).Text("Rank").Bold();
                                                     row.ConstantItem(50).Text("#").Bold();
-                                                    row.ConstantItem(300).Text("Rider").Bold();
-                                                    row.ConstantItem(35).Text("NAT").Bold();
+                                                    row.ConstantItem(200).Text("Rider").Bold();
+                                                    row.ConstantItem(100).Text("Nation").Bold();
                                                     row.ConstantItem(100).Text(r.ResultTitle == null ? "" : r.ResultTitle).Bold().AlignEnd();
                                                 });
 
@@ -267,7 +287,8 @@ namespace CycleScoresWeb.Services
                                 {
                                     count--;
 
-                                    x.Item().PreventPageBreak()
+                                    x.Item()
+                                    //.PreventPageBreak()
                                     .PaddingTop(0.2f, Unit.Centimetre)
                                     //.Border(2, Colors.Blue.Lighten4)
                                     .Padding(0.2f, Unit.Centimetre)
@@ -292,7 +313,6 @@ namespace CycleScoresWeb.Services
                                 //.Text(c.Decision)
                                 //.AlignCenter()
                                 .Markdown(c.Decision);
-
                             }
 
                         });

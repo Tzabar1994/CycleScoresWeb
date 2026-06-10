@@ -46,8 +46,8 @@ else if (Model.Communique.CommuniqueType == Models.CommuniqueType.RESULT)
             <div class="row">
                 <div class="col-1"><strong>Rank</strong></div>
                 <div class="col-1"><strong>#</strong></div>
-                <div class="col-5"><strong>Name</strong></div>
-                <div class="col-1"><strong>Nation</strong></div>
+                <div class="col-4"><strong>Name</strong></div>
+                <div class="col-2"><strong>Nation</strong></div>
                 @if (result.RiderResults.Any(r => (r.ResultDetails != null && !r.ResultDetails.IsWhiteSpace())))
                 {
                     <div class="col-4"><strong>Result</strong></div>
@@ -62,8 +62,8 @@ else if (Model.Communique.CommuniqueType == Models.CommuniqueType.RESULT)
                 <div class="row">
                     <div class="col-1"><span>@rider.Rank</span></div>
                     <div class="col-1"><span>@rider.Bib</span></div>
-                    <div class="col-5"><span>@rider.Name</span></div>
-                    <div class="col-1"><span>@rider.Nation</span></div>
+                    <div class="col-4"><span>@rider.Name</span></div>
+                    <div class="col-2"><span>@rider.Nation</span></div>
                     <div class="col-4"><span>@rider?.ResultDetails</span></div>
                 </div>
             }
@@ -80,14 +80,14 @@ else if (Model.Communique.CommuniqueType == Models.CommuniqueType.START)
             <div class="row">
                 <div class="col-1"><strong>#</strong></div>
                 <div class="col-5"><strong>Name</strong></div>
-                <div class="col-1"><strong>Nation</strong></div>
+                <div class="col-2"><strong>Nation</strong></div>
             </div>
             @foreach (var rider in heat.Riders)
             {
                 <div class="row">
                     <div class="col-1"><span>@rider?.Bib</span></div>
                     <div class="col-5"><span>@rider?.Name</span></div>
-                    <div class="col-1"><span>@rider?.Nation</span></div>
+                    <div class="col-2"><span>@rider?.Nation</span></div>
                 </div>
             }
         </div>

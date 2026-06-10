@@ -28,7 +28,7 @@ namespace CycleScoresWeb.Models
     [NotMapped]
     public record Heat
     {
-        public required string HeatTitle { get; set; }
+        public string? HeatTitle { get; set; }
         public required List<Rider> Riders { get; set; }
     }
     [NotMapped]
