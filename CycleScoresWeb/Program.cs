@@ -47,7 +47,16 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+//app.UseEndpoints(endpoints =>
+//{
+//    endpoints.MapRazorPages().WithStaticAssets();
+//    endpoints.MapControllers();
+//});
+
 app.MapRazorPages()
    .WithStaticAssets();
+
+app.MapControllers();
 
 app.Run();

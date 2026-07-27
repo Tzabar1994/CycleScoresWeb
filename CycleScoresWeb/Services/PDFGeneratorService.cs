@@ -3,14 +3,15 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using CycleScoresWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Markdown;
+using System;
 using System.Diagnostics.Tracing;
 using System.Net.Mail;
-using System;
-using Microsoft.AspNetCore.OutputCaching;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CycleScoresWeb.Services
 {
@@ -18,6 +19,7 @@ namespace CycleScoresWeb.Services
     public interface IPDFGeneratorService
     {
         public byte[] GenerateCommunique(Communique c);
+        public byte[] GenerateResultsBook(List<Communique> EventCommuniques);
     }
 
     public class PDFGeneratorService : IPDFGeneratorService
@@ -53,6 +55,31 @@ namespace CycleScoresWeb.Services
 
         public byte[] GenerateCommunique(Communique c)
         {
+
+            var doc = GenerateQuestCommuniqueDocument(c);
+
+            return doc.GeneratePdf();
+        }
+
+        public byte[] GenerateResultsBook(List<Communique> EventCommuniques)
+        {
+            //throw new NotImplementedException();
+
+            List<Document> docList = new List<Document>();
+
+            foreach (var ec in EventCommuniques)
+            {
+                docList.Add(GenerateQuestCommuniqueDocument(ec));
+            }
+
+            var merged = Document.Merge(docList);
+
+            return merged.GeneratePdf();
+
+        }
+
+        private Document GenerateQuestCommuniqueDocument(Communique c)
+        {
             byte[]? image = null;
 
             if (c.HeaderImage != null && !c.HeaderImage.IsWhiteSpace())
@@ -65,33 +92,51 @@ namespace CycleScoresWeb.Services
                 {
                     image = null;
                 }
-                
+
             }
 
-            var doc = Document.Create(container =>
+            return Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
+                    
+                    if (c.LandScape == true)
+                    {
+                        page.Size(PageSizes.A4.Landscape());
+                    }
+                    else
+                    {
+                        page.Size(PageSizes.A4);
+                    }
                     page.Margin(0.5f, Unit.Centimetre);
                     //page.MarginTop(0.5f, Unit.Centimetre);
                     //page.MarginBottom(0.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(12));
+                    page.DefaultTextStyle(x => x.FontSize(10.5f));
 
                     page.Header()
                     .Column(col =>
                     {
-                        if (c.CommuniqueNumber != null && !c.CommuniqueNumber.IsWhiteSpace())
+                        col.Item().PaddingBottom(0.25f, Unit.Centimetre).Row(r =>
                         {
-                            col.Item().Text($"Communiqué {c.CommuniqueNumber}").Italic().AlignEnd();
-                        }
+                            if (c.CommuniqueId != null)
+                            {
+                                r.RelativeItem(2).Text(c.CommuniqueId.ToString() ?? "").FontSize(10).FontColor(Colors.Grey.Lighten1);
+                            }
+
+                            if (c.CommuniqueNumber != null && !c.CommuniqueNumber.IsWhiteSpace())
+                            {
+                                r.RelativeItem(2).Text($"Communiqué {c.CommuniqueNumber}").Italic().AlignEnd();
+                            }
+                        });
+
+
 
                         if (image != null)
                         {
                             col.Item().Image(image).FitWidth();
                         }
-                        else
+                        else if (c.LandScape == false && c.Minimal == true)
                         {
                             col.Item().Background(Colors.Blue.Lighten5)
                             .PaddingTop(0.25f, Unit.Centimetre)
@@ -156,7 +201,7 @@ namespace CycleScoresWeb.Services
                                     .PreventPageBreak()
                                     .Column(y =>
                                     {
-                                        if(s.HeatTitle != null && !s.HeatTitle.IsWhiteSpace())
+                                        if (s.HeatTitle != null && !s.HeatTitle.IsWhiteSpace())
                                         {
                                             y.Item()
                                             .Background(Colors.Blue.Lighten5)
@@ -165,14 +210,14 @@ namespace CycleScoresWeb.Services
                                             .Text(s.HeatTitle)
                                             .Bold();
                                         }
-                                        
+
                                         y.Item().PaddingLeft(20)
                                             .Row(row =>
                                             {
                                                 row.Spacing(5);
                                                 row.ConstantItem(40).Text("#").Bold();
                                                 row.ConstantItem(375).Text("Rider").Bold();
-                                                row.ConstantItem(35).Text("NAT").Bold();
+                                                row.ConstantItem(75).Text("NAT").Bold();
                                             });
 
                                         foreach (var r in s.Riders)
@@ -183,7 +228,7 @@ namespace CycleScoresWeb.Services
                                                 row.Spacing(5);
                                                 row.ConstantItem(40).Text($"{r?.Bib.ToString() ?? ""}");
                                                 row.ConstantItem(375).Text(r.Name);
-                                                row.ConstantItem(35).Text(r.Nation ?? "");
+                                                row.ConstantItem(75).Text(r.Nation ?? "");
                                                 // ToDo -> Can we have nation flags?
                                                 //row.ConstantItem(30).Image(Placeholders.Image(1, 1));
 
@@ -222,7 +267,7 @@ namespace CycleScoresWeb.Services
                                                     row.ConstantItem(50).Text("Rank").Bold();
                                                     row.ConstantItem(50).Text("#").Bold();
                                                     row.ConstantItem(200).Text("Rider").Bold();
-                                                    row.ConstantItem(100).Text("Nation").Bold();
+                                                    row.ConstantItem(75).Text("Nation").Bold();
                                                     row.ConstantItem(100).Text(r.ResultTitle == null ? "" : r.ResultTitle).Bold().AlignEnd();
                                                 });
 
@@ -238,8 +283,8 @@ namespace CycleScoresWeb.Services
                                                 {
                                                     row.ConstantItem(50).Text($"{result.Rank}");
                                                     row.ConstantItem(50).Text($"{result.Bib}");
-                                                    row.ConstantItem(300).Text(result.Name);
-                                                    row.ConstantItem(35).Text(result.Nation == null ? "" : result.Nation);
+                                                    row.ConstantItem(200).Text(result.Name);
+                                                    row.ConstantItem(75).Text(result.Nation == null ? "" : result.Nation);
                                                     row.ConstantItem(100).Text(result.ResultDetails == null ? "" : result.ResultDetails).Bold().AlignEnd();
 
                                                 });
@@ -279,7 +324,14 @@ namespace CycleScoresWeb.Services
 
                             if (c.BodyText != null)
                             {
-                                page.DefaultTextStyle(x => x.FontSize(10));
+                                if (c.Minimal == true)
+                                {
+                                    page.DefaultTextStyle(x => x.FontSize(6));
+                                }
+                                else
+                                {
+                                    page.DefaultTextStyle(x => x.FontSize(10));
+                                }
 
                                 var count = c.BodyText.Length;
 
@@ -288,10 +340,10 @@ namespace CycleScoresWeb.Services
                                     count--;
 
                                     x.Item()
-                                    .PreventPageBreak()
-                                    .PaddingTop(0.2f, Unit.Centimetre)
+                                    //.PreventPageBreak()
+                                    .PaddingTop(0.1f, Unit.Centimetre)
                                     //.Border(2, Colors.Blue.Lighten4)
-                                    .Padding(0.2f, Unit.Centimetre)
+                                    .Padding(0.1f, Unit.Centimetre)
                                     //.AlignCenter()
                                     .Markdown(text);
 
@@ -325,20 +377,25 @@ namespace CycleScoresWeb.Services
                             .LineHorizontal(2)
                             .LineColor(Colors.Blue.Darken4);
 
-                            outerCol.Item().Background(Colors.Blue.Lighten5)
-                            .Padding(0.25f, Unit.Centimetre).Column(col =>
+                            if (c.Minimal != true)
                             {
-                                col.Item().Text("Approved by the Secretary of the Commissaires Panel").AlignCenter().Bold();
+                                outerCol.Item().Background(Colors.Blue.Lighten5)
+                                    .Padding(0.25f, Unit.Centimetre).Column(col =>
+                                    {
+                                        col.Item().Text("Approved by the Secretary of the Commissaires Panel").AlignCenter().Bold();
 
-                                col.Item().Text(c.Event).AlignCenter().Italic();
+                                        col.Item().Text(c.Event).AlignCenter().Italic();
 
-                                //col.Item().PaddingTop(0.25f, Unit.Centimetre).Row(row =>
-                                //{
-                                //    row.RelativeItem(3).Text($"2026 National Masters Track Championships");
-                                //    //row.RelativeItem().Text("Approved by the Secretary of the Commissaires Panel");
-                                //    row.RelativeItem(1).Text("26/06/2026 14:02").AlignEnd();
-                                //});
-                            });
+                                        //col.Item().PaddingTop(0.25f, Unit.Centimetre).Row(row =>
+                                        //{
+                                        //    row.RelativeItem(3).Text($"2026 National Masters Track Championships");
+                                        //    //row.RelativeItem().Text("Approved by the Secretary of the Commissaires Panel");
+                                        //    row.RelativeItem(1).Text("26/06/2026 14:02").AlignEnd();
+                                        //});
+                                    });
+                            }
+
+                            
 
                             outerCol.Item().Row(row =>
                             {
@@ -358,8 +415,6 @@ namespace CycleScoresWeb.Services
                         });
                 });
             });
-
-            return doc.GeneratePdf();
         }
     }
 }

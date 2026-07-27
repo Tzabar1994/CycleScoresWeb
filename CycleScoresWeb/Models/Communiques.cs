@@ -10,6 +10,7 @@ namespace CycleScoresWeb.Models
         public required string Title { get; set; }
         public string? SubTitle { get; set; }
         public string? CommuniqueNumber { get; set; }
+        public Guid? CommuniqueId { get; set; }
         public required CommuniqueType CommuniqueType { get; set; }
         public List<Heat>? Start { get; set; }
         public List<RaceResult>? Result { get; set; }
@@ -17,6 +18,8 @@ namespace CycleScoresWeb.Models
         public string? Decision { get; set; }
         public string? HeaderText { get; set; }
         public string[]? BodyText { get; set; }
+        public bool? LandScape { get; set; }
+        public bool? Minimal { get; set; }
     }
     public enum CommuniqueType
     {

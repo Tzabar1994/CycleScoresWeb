@@ -42,7 +42,10 @@ namespace CycleScoresWeb.Services
                 string blobContents = downloadResult.Content.ToString();
                 var c = JsonSerializer.Deserialize<Communique>(blobContents, _options);
                 if (c != null)
+                {
+                    c.CommuniqueId = communiqueId;
                     return c;
+                }
                 throw new InvalidDataException("Json could not be deserialised");
             }
             catch
